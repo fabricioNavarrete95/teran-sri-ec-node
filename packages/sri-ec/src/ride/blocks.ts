@@ -1,4 +1,4 @@
-import { Ambiente, TipoComprobante, TipoEmision } from '../catalogs/index.js';
+import { Ambiente, LEYENDA_RIMPE, TipoComprobante, TipoEmision } from '../catalogs/index.js';
 import { FormaPago } from '../catalogs/forma-pago.js';
 import type { Detalle, InfoTributaria, Pago, TotalImpuesto } from '../documents/index.js';
 // `SriError` y las utilidades de `utils/money.ts` se importan por el nombre
@@ -701,10 +701,12 @@ export function drawBloquesEnFila(
  * lado — como en la maqueta, no concatenadas en un `"etiqueta: valor"` suelto
  * (que es lo que dibujaba el RIDE v0.2.0).
  *
- * `agenteRetencion`, `contribuyenteRimpe` y `rise` no salen en la maqueta de
- * 2017 (son posteriores) pero SÍ se imprimen, con el mismo formato de fila,
- * detrás de `OBLIGADO A LLEVAR CONTABILIDAD`: la auditoría "campos fiscales
- * omitidos" los añadió y quitarlos ahora sería perder datos del emisor.
+ * `agenteRetencion` y `rise` no salen en la maqueta de 2017 (son
+ * posteriores) pero SÍ se imprimen, con el mismo formato de fila, detrás de
+ * `OBLIGADO A LLEVAR CONTABILIDAD`: la auditoría "campos fiscales omitidos"
+ * los añadió y quitarlos ahora sería perder datos del emisor. La leyenda
+ * RIMPE (`regimenRimpe`) también es posterior a la maqueta, pero la ficha
+ * técnica exige imprimirla y se dibuja sola, en negrita, al final del bloque.
  */
 export function drawEmisor(
   doc: PDFKit.PDFDocument,
@@ -812,12 +814,24 @@ function lineasEmisor(emisor: EmisorRide, anchoArea: number): LineaCaja[] {
   // cuatro o cinco líneas.
   for (const [etiqueta, valor] of [
     ['Agente de Retención:', emisor.agenteRetencion],
-    ['Contribuyente Régimen RIMPE:', emisor.contribuyenteRimpe],
     ['RISE:', emisor.rise],
   ] as const) {
     if (noVacio(valor)) {
       lineas.push(filaEtiquetaValor(anchoCaja, etiqueta, valor, 0.45));
     }
+  }
+  // Leyenda RIMPE: la ficha técnica exige que el RIDE la muestre de forma
+  // visible en el bloque del emisor, con el texto literal que va en
+  // `<contribuyenteRimpe>` (27 o 45 caracteres según el régimen). Se imprime
+  // sola, en negrita: repetir al lado la etiqueta "Contribuyente Régimen
+  // RIMPE:" duplicaría el mismo texto.
+  if (emisor.regimenRimpe) {
+    lineas.push({
+      texto: LEYENDA_RIMPE[emisor.regimenRimpe],
+      negrita: true,
+      tamano: TAMANO_TEXTO,
+      ajustar: true,
+    });
   }
   return lineas;
 }

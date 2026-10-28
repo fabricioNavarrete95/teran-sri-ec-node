@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { TipoComprobante } from '../src/catalogs/index.js';
+import { LEYENDA_RIMPE, RegimenRimpe, TipoComprobante } from '../src/catalogs/index.js';
 import type { Factura } from '../src/documents/index.js';
 import { generarClaveAcceso } from '../src/utils/clave-acceso.js';
 import { facturaFixture } from './documents.test.js';
@@ -269,6 +269,33 @@ describe('ride: factura', () => {
 
     expect(texto).toContain('Av. Amazonas N24-03, Quito');
     expect(texto).toContain('5368');
+  });
+
+  it('imprime la leyenda RIMPE del emisor mapeada desde infoTributaria.regimenRimpe (ficha técnica: leyenda visible en el RIDE)', async () => {
+    const { generarRide } = await cargarRide();
+    const textos: string[] = [];
+
+    for (const regimen of [RegimenRimpe.General, RegimenRimpe.NegocioPopular]) {
+      const facturaRimpe: Factura = {
+        ...facturaFixture,
+        infoTributaria: { ...facturaFixture.infoTributaria, regimenRimpe: regimen },
+      };
+
+      const pdf = await generarRide({ documento: facturaRimpe, claveAcceso });
+      textos.push(sinEspacios(await extraerTextoPdf(pdf)));
+    }
+
+    // Cada RIDE lleva la leyenda de SU régimen, y solo esa.
+    expect(textos[0]).toContain(sinEspacios(LEYENDA_RIMPE[RegimenRimpe.General]));
+    expect(textos[0]).not.toContain(sinEspacios(LEYENDA_RIMPE[RegimenRimpe.NegocioPopular]));
+    expect(textos[1]).toContain(sinEspacios(LEYENDA_RIMPE[RegimenRimpe.NegocioPopular]));
+    expect(textos[1]).not.toContain(sinEspacios(LEYENDA_RIMPE[RegimenRimpe.General]));
+
+    // La leyenda no se imprime detrás de la etiqueta redundante del RIDE
+    // anterior (`Contribuyente Régimen RIMPE: CONTRIBUYENTE RÉGIMEN RIMPE`).
+    for (const texto of textos) {
+      expect(texto).not.toContain(sinEspacios('Contribuyente Régimen RIMPE:'));
+    }
   });
 
   it('el logo del emisor con bytes inválidos lanza un SriError claro en vez del error crudo de pdfkit (fix round 1, hallazgo confirmado del reviewer)', async () => {

@@ -1,4 +1,4 @@
-import type { Ambiente, TipoEmision } from '../catalogs/index.js';
+import type { Ambiente, RegimenRimpe, TipoEmision } from '../catalogs/index.js';
 
 /**
  * Tipos compartidos por los 6 comprobantes electrónicos (port de
@@ -17,10 +17,13 @@ import type { Ambiente, TipoEmision } from '../catalogs/index.js';
  * `src/Documents/InfoTributaria.php`).
  *
  * `tipoEmision` es opcional porque el value object PHP lo defaultea a
- * `TipoEmision::Normal` en el constructor; `nombreComercial`,
- * `contribuyenteRimpe` y `agenteRetencion` son opcionales porque
- * `XmlGenerator::createInfoTributaria()` solo los emite si están presentes
- * (`$value !== null`).
+ * `TipoEmision::Normal` en el constructor; `nombreComercial`, `agenteRetencion`
+ * y `regimenRimpe` son opcionales porque `XmlGenerator::createInfoTributaria()`
+ * solo los emite si están presentes (`$value !== null`).
+ *
+ * `regimenRimpe` sustituye al texto libre que el PHP 1.x recibía en
+ * `contribuyenteRimpe`: el consumidor declara el régimen y el serializador
+ * escribe la leyenda literal que exige el SRI (`LEYENDA_RIMPE`).
  */
 export interface InfoTributaria {
   ambiente: Ambiente;
@@ -32,7 +35,8 @@ export interface InfoTributaria {
   dirMatriz: string;
   tipoEmision?: TipoEmision;
   nombreComercial?: string;
-  contribuyenteRimpe?: string;
+  /** Si viene, se emite `<contribuyenteRimpe>` con la leyenda del régimen. */
+  regimenRimpe?: RegimenRimpe;
   agenteRetencion?: string;
 }
 

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { TipoComprobante } from '../src/catalogs/index.js';
+import { LEYENDA_RIMPE, RegimenRimpe, TipoComprobante } from '../src/catalogs/index.js';
 import type { Factura } from '../src/documents/index.js';
 import { generarClaveAcceso } from '../src/utils/clave-acceso.js';
 import { ValidationError } from '../src/errors/index.js';
@@ -180,7 +180,7 @@ const facturaConOpcionales: Factura = {
   infoTributaria: {
     ...facturaFixture.infoTributaria,
     agenteRetencion: '30',
-    contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+    regimenRimpe: RegimenRimpe.General,
   },
   dirEstablecimiento: 'Av. Amazonas N24-03, Quito',
   contribuyenteEspecial: '5368',
@@ -201,9 +201,14 @@ const facturaConOpcionales: Factura = {
 describe('FacturaXmlSerializer — campos opcionales del XSD 2.1.0 (no modelados en PHP v2)', () => {
   const xml = new FacturaXmlSerializer().serialize(facturaConOpcionales, claveAcceso);
 
-  it('emite infoTributaria/agenteRetencion e infoTributaria/contribuyenteRimpe con su valor', () => {
+  it('no filtra el código del régimen en el XML: emite la leyenda, no el enum', () => {
+    expect(xml).not.toContain('<regimenRimpe>');
+    expect(xml).not.toContain('>GENERAL<');
+  });
+
+  it('emite infoTributaria/agenteRetencion e infoTributaria/contribuyenteRimpe con la leyenda del régimen declarado', () => {
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.General]}</contribuyenteRimpe>`);
   });
 
   it('posiciona agenteRetencion/contribuyenteRimpe después de dirMatriz, en ese orden, dentro de infoTributaria', () => {

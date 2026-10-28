@@ -217,7 +217,7 @@ export async function generarRideRetencion(opciones: RideOptions<Retencion>): Pr
     obligadoContabilidad: documento.obligadoContabilidad,
     contribuyenteEspecial: documento.contribuyenteEspecial,
     agenteRetencion: documento.infoTributaria.agenteRetencion,
-    contribuyenteRimpe: documento.infoTributaria.contribuyenteRimpe,
+    regimenRimpe: documento.infoTributaria.regimenRimpe,
   };
   const comprobante: ComprobanteRide = {
     ruc: documento.infoTributaria.ruc,

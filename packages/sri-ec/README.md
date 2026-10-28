@@ -93,6 +93,8 @@ if (resultado.status === 'AUTORIZADO') {
 
 `Factura` también admite `dirEstablecimiento` y `contribuyenteEspecial` (opcionales, no usados en el ejemplo mínimo de arriba): dirección del establecimiento emisor y número de resolución de contribuyente especial — el RIDE los imprime en el bloque emisor cuando están presentes.
 
+Si el emisor es **contribuyente RIMPE**, declara el régimen en `infoTributaria.regimenRimpe` (`RegimenRimpe.General` o `RegimenRimpe.NegocioPopular`): la librería escribe en `<contribuyenteRimpe>` la leyenda literal que exige el SRI (`CONTRIBUYENTE RÉGIMEN RIMPE`, 27 caracteres; `CONTRIBUYENTE NEGOCIO POPULAR - RÉGIMEN RIMPE`, 45) y la imprime en el RIDE. No pases la leyenda a mano: desde la 0.4.0 el campo anterior `contribuyenteRimpe` (texto libre) ya no existe y el schema rechaza el texto completo.
+
 ### Firmar sin emitir (`prepare`)
 
 Para firmar ahora y despachar después (cola, lote, worker):
@@ -146,6 +148,8 @@ La referencia completa (envío masivo, transporte propio, troubleshooting de zon
 El RIDE de los 6 comprobantes reproduce la maqueta oficial del **Anexo 2 de la Ficha Técnica del SRI** y vive en el subpath opcional `sri-ec/ride`, para que emitir/firmar no pague el costo de sus dependencias.
 
 > **Cambio en 0.3.0**: el predeterminado pasó de QR (`incluirQr: true` en 0.2.0) a **código de barras Code 128** (`codigoBarras: true`), conforme a la maqueta oficial. Si vienes de 0.2.0 y quieres seguir generando el QR, pasa `opciones: { incluirQr: true }` explícitamente.
+
+Si el documento declara `infoTributaria.regimenRimpe`, el bloque del emisor cierra con la leyenda RIMPE correspondiente (`CONTRIBUYENTE RÉGIMEN RIMPE` o `CONTRIBUYENTE NEGOCIO POPULAR - RÉGIMEN RIMPE`).
 
 Con las opciones por defecto solo hace falta `pdfkit`; instala también `qrcode` solo si vas a usar `incluirQr: true`:
 

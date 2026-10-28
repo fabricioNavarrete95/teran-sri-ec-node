@@ -1,4 +1,4 @@
-import { TipoComprobante, TipoEmision } from '../catalogs/index.js';
+import { LEYENDA_RIMPE, TipoComprobante, TipoEmision } from '../catalogs/index.js';
 import type { Factura } from '../documents/factura.js';
 import { formatMonto } from '../utils/money.js';
 import { XmlBuilder, XmlElement, serializeXmlDocument } from './xml-builder.js';
@@ -100,8 +100,8 @@ export class FacturaXmlSerializer {
     if (info.agenteRetencion !== undefined) {
       b.child(node, 'agenteRetencion', info.agenteRetencion);
     }
-    if (info.contribuyenteRimpe !== undefined) {
-      b.child(node, 'contribuyenteRimpe', info.contribuyenteRimpe);
+    if (info.regimenRimpe !== undefined) {
+      b.child(node, 'contribuyenteRimpe', LEYENDA_RIMPE[info.regimenRimpe]);
     }
   }
 

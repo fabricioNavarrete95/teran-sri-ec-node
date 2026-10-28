@@ -156,7 +156,7 @@ export async function generarRideGuiaRemision(opciones: RideOptions<GuiaRemision
     obligadoContabilidad: documento.obligadoContabilidad,
     contribuyenteEspecial: documento.contribuyenteEspecial,
     agenteRetencion: documento.infoTributaria.agenteRetencion,
-    contribuyenteRimpe: documento.infoTributaria.contribuyenteRimpe,
+    regimenRimpe: documento.infoTributaria.regimenRimpe,
     rise: documento.rise,
   };
   const comprobante: ComprobanteRide = {

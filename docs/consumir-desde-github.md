@@ -63,21 +63,21 @@ Si más adelante quieres tags inmutables por versión, se agregan al workflow.
 
 ## La trampa: el peer de `sri-ec-nestjs`
 
-`sri-ec-nestjs` declara `peerDependencies: { "sri-ec": "^0.3.0" }`. Si instalas
+`sri-ec-nestjs` declara `peerDependencies: { "sri-ec": "^0.4.0" }`. Si instalas
 **solo** el paquete de NestJS, npm resuelve ese peer contra el registry público y
 te baja el `sri-ec` **de npmjs** (el proyecto original de JonathanTerán), no este
 fork:
 
 ```
-"resolved": "https://registry.npmjs.org/sri-ec/-/sri-ec-0.3.0.tgz"
+"resolved": "https://registry.npmjs.org/sri-ec/-/sri-ec-0.4.0.tgz"
 ```
 
 Verifícalo siempre:
 
 ```bash
 npm ls sri-ec
-# correcto:   sri-ec@0.3.0 -> github:fabricioNavarrete95/teran-sri-ec-node#...
-# incorrecto: sri-ec@0.3.0   (sin URL de git ⇒ vino de npmjs)
+# correcto:   sri-ec@0.4.0 -> github:fabricioNavarrete95/teran-sri-ec-node#...
+# incorrecto: sri-ec@0.4.0   (sin URL de git ⇒ vino de npmjs)
 
 npm ls sri-ec --json | grep -i registry.npmjs.org   # no debe devolver nada
 ```

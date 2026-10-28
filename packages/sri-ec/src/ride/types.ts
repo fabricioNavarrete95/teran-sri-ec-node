@@ -1,4 +1,4 @@
-import type { Ambiente, TipoEmision } from '../catalogs/index.js';
+import type { Ambiente, RegimenRimpe, TipoEmision } from '../catalogs/index.js';
 import type { Comprobante, TotalImpuesto } from '../documents/index.js';
 
 /**
@@ -86,7 +86,8 @@ export interface EmisorRide {
   obligadoContabilidad?: 'SI' | 'NO';
   contribuyenteEspecial?: string;
   agenteRetencion?: string;
-  contribuyenteRimpe?: string;
+  /** Si viene, el RIDE imprime la leyenda literal del régimen (`LEYENDA_RIMPE`). */
+  regimenRimpe?: RegimenRimpe;
   /**
    * Régimen Impositivo Simplificado (RISE, anterior a RIMPE). Modelado como
    * `string` suelto (no boolean) porque así lo trae cada documento

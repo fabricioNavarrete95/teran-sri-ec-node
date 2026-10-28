@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Ambiente, TipoEmision } from '../catalogs/index.js';
+import { Ambiente, RegimenRimpe, TipoEmision } from '../catalogs/index.js';
 import type { Detalle, InfoTributaria, Impuesto, Pago, TotalImpuesto } from '../documents/shared.js';
 import { isMonto } from '../utils/money.js';
 
@@ -101,7 +101,9 @@ export const infoTributariaSchema = z
     dirMatriz: dirEstablecimientoField,
     tipoEmision: z.enum(TipoEmision).optional(),
     nombreComercial: nonEmptyString.optional(),
-    contribuyenteRimpe: nonEmptyString.optional(),
+    // Régimen RIMPE, no la leyenda: el serializador escribe el texto literal
+    // (`LEYENDA_RIMPE`) que exige el SRI en `<contribuyenteRimpe>`.
+    regimenRimpe: z.enum(RegimenRimpe).optional(),
     agenteRetencion: nonEmptyString.optional(),
   })
   .strict() satisfies z.ZodType<InfoTributaria>;

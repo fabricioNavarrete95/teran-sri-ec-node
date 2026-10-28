@@ -1,4 +1,4 @@
-import { TipoEmision } from '../catalogs/index.js';
+import { LEYENDA_RIMPE, TipoEmision } from '../catalogs/index.js';
 import type { InfoTributaria } from '../documents/index.js';
 import { XmlBuilder, XmlElement } from './xml-builder.js';
 
@@ -22,6 +22,11 @@ import { XmlBuilder, XmlElement } from './xml-builder.js';
  * (`XmlGenerator::createInfoTributaria()`) los escribe cuando están
  * presentes — se emiten aquí cuando el documento TS los trae, igual que
  * `FacturaXmlSerializer` (Task 7).
+ *
+ * Diferencia deliberada con el PHP 1.x: `<contribuyenteRimpe>` no recibe
+ * texto libre, sino la leyenda literal del régimen que declare el documento
+ * (`InfoTributaria.regimenRimpe` → `LEYENDA_RIMPE`). El SRI valida el
+ * contenido de ese elemento, no solo la etiqueta.
  */
 export function writeInfoTributaria(
   b: XmlBuilder,
@@ -47,8 +52,8 @@ export function writeInfoTributaria(
   if (info.agenteRetencion !== undefined) {
     b.child(node, 'agenteRetencion', info.agenteRetencion);
   }
-  if (info.contribuyenteRimpe !== undefined) {
-    b.child(node, 'contribuyenteRimpe', info.contribuyenteRimpe);
+  if (info.regimenRimpe !== undefined) {
+    b.child(node, 'contribuyenteRimpe', LEYENDA_RIMPE[info.regimenRimpe]);
   }
 }
 

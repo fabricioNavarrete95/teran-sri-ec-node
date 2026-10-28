@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { TipoComprobante } from '../src/catalogs/index.js';
+import { LEYENDA_RIMPE, RegimenRimpe, TipoComprobante } from '../src/catalogs/index.js';
 import type {
   GuiaRemision,
   LiquidacionCompra,
@@ -174,13 +174,13 @@ describe('LiquidacionCompraXmlSerializer — campos opcionales no representables
       infoTributaria: {
         ...liquidacionCompraFixture.infoTributaria,
         agenteRetencion: '30',
-        contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        regimenRimpe: RegimenRimpe.General,
       },
     };
     const xml = new LiquidacionCompraXmlSerializer().serialize(doc, claveLiquidacionCompra);
 
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.General]}</contribuyenteRimpe>`);
     const iDirMatriz = xml.indexOf('<dirMatriz>');
     const iAgente = xml.indexOf('<agenteRetencion>');
     const iRimpe = xml.indexOf('<contribuyenteRimpe>');
@@ -342,13 +342,13 @@ describe('NotaCreditoXmlSerializer — campos opcionales no representables en PH
       infoTributaria: {
         ...notaCreditoFixture.infoTributaria,
         agenteRetencion: '30',
-        contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        regimenRimpe: RegimenRimpe.General,
       },
     };
     const xml = new NotaCreditoXmlSerializer().serialize(doc, claveNotaCredito);
 
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.General]}</contribuyenteRimpe>`);
   });
 
   it('emite totalConImpuestos[].descuentoAdicional entre codigoPorcentaje y baseImponible', () => {
@@ -464,13 +464,13 @@ describe('NotaDebitoXmlSerializer — campos opcionales no representables en PHP
       infoTributaria: {
         ...notaDebitoFixture.infoTributaria,
         agenteRetencion: '30',
-        contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        regimenRimpe: RegimenRimpe.General,
       },
     };
     const xml = new NotaDebitoXmlSerializer().serialize(doc, claveNotaDebito);
 
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.General]}</contribuyenteRimpe>`);
   });
 
   it('emite impuestos[].descuentoAdicional entre codigoPorcentaje y baseImponible', () => {
@@ -580,13 +580,13 @@ describe('GuiaRemisionXmlSerializer — campos opcionales no representables en P
       infoTributaria: {
         ...guiaRemisionFixture.infoTributaria,
         agenteRetencion: '30',
-        contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        regimenRimpe: RegimenRimpe.General,
       },
     };
     const xml = new GuiaRemisionXmlSerializer().serialize(doc, claveGuiaRemision);
 
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.General]}</contribuyenteRimpe>`);
   });
 
   it('emite rise (representable en PHP v2, no cubierto por el fixture base) entre rucTransportista y obligadoContabilidad', () => {
@@ -693,13 +693,13 @@ describe('RetencionXmlSerializer — campos opcionales no representables en PHP 
       infoTributaria: {
         ...retencionFixture.infoTributaria,
         agenteRetencion: '30',
-        contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        regimenRimpe: RegimenRimpe.NegocioPopular,
       },
     };
     const xml = new RetencionXmlSerializer().serialize(doc, claveRetencion);
 
     expect(xml).toContain('<agenteRetencion>30</agenteRetencion>');
-    expect(xml).toContain('<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>');
+    expect(xml).toContain(`<contribuyenteRimpe>${LEYENDA_RIMPE[RegimenRimpe.NegocioPopular]}</contribuyenteRimpe>`);
   });
 
   it('no emite obligadoContabilidad cuando está ausente (sin default, igual que GuiaRemision)', () => {

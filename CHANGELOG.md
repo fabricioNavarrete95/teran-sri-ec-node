@@ -5,6 +5,35 @@ inspirado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 Cubre ambos paquetes del monorepo (`sri-ec` y `sri-ec-nestjs`), que se versionan
 juntos.
 
+## [0.4.0] - 2026-10-28
+
+### Added
+
+- **Régimen RIMPE** en `infoTributaria`: `regimenRimpe?: RegimenRimpe`
+  (`RegimenRimpe.General` | `RegimenRimpe.NegocioPopular`) más el catálogo
+  `LEYENDA_RIMPE` con el texto literal que exige la ficha técnica
+  (`CONTRIBUYENTE RÉGIMEN RIMPE`, 27 caracteres; `CONTRIBUYENTE NEGOCIO
+  POPULAR - RÉGIMEN RIMPE`, 45 caracteres). Los 6 serializadores XML emiten
+  `<contribuyenteRimpe>` con esa leyenda, después de `agenteRetencion` y antes
+  de `</infoTributaria>`.
+- El RIDE imprime la leyenda RIMPE del emisor en el bloque del emisor cuando
+  el documento declara `regimenRimpe`, en los 6 comprobantes.
+
+### Changed
+
+- **Breaking (XML):** se elimina `infoTributaria.contribuyenteRimpe?: string
+  (texto libre)`. Migración: `contribuyenteRimpe: 'CONTRIBUYENTE RÉGIMEN
+  RIMPE'` → `regimenRimpe: RegimenRimpe.General`. El schema zod rechaza la
+  leyenda completa y el campo legado, de modo que el texto que lleva el XML lo
+  escribe siempre la librería.
+- **Breaking (RIDE):** `EmisorRide.contribuyenteRimpe` pasa a
+  `EmisorRide.regimenRimpe` (subpath `sri-ec/ride`).
+- El RIDE ya no imprime la fila `Contribuyente Régimen RIMPE: <texto
+  completo>`: imprime la leyenda sola, en negrita, al final del bloque del
+  emisor — sin duplicar el mismo texto.
+- `sri-ec-nestjs`: `peerDependencies.sri-ec` sube a `^0.4.0` (el `^0.3.0`
+  anterior no satisface la 0.4.0).
+
 ## [0.3.0] - 2026-08-06
 
 ### Added
@@ -70,6 +99,7 @@ juntos.
 - Módulo `sri-ec-nestjs` con el patrón `forRoot()`/`forRootAsync()` estándar
   del ecosistema Nest.
 
+[0.4.0]: https://github.com/JonathanTeran/teran-sri-ec-node/releases/tag/v0.4.0
 [0.3.0]: https://github.com/JonathanTeran/teran-sri-ec-node/releases/tag/v0.3.0
 [0.2.0]: https://github.com/JonathanTeran/teran-sri-ec-node/releases/tag/v0.2.0
 [0.1.0]: https://github.com/JonathanTeran/teran-sri-ec-node/releases/tag/v0.1.0

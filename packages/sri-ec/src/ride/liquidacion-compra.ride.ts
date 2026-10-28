@@ -82,7 +82,7 @@ export async function generarRideLiquidacionCompra(opciones: RideOptions<Liquida
     obligadoContabilidad: documento.obligadoContabilidad,
     contribuyenteEspecial: documento.contribuyenteEspecial,
     agenteRetencion: documento.infoTributaria.agenteRetencion,
-    contribuyenteRimpe: documento.infoTributaria.contribuyenteRimpe,
+    regimenRimpe: documento.infoTributaria.regimenRimpe,
   };
   const comprobante: ComprobanteRide = {
     ruc: documento.infoTributaria.ruc,
