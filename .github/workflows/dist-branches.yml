@@ -1,0 +1,84 @@
+name: dist-branches
+
+# Genera, en este mismo repo, una rama huérfana por paquete con el paquete
+# compilado en su RAÍZ:
+#
+#   dist         → paquete `sri-ec` (core + subpath `sri-ec/ride`)
+#   dist-nestjs  → paquete `sri-ec-nestjs`
+#
+# Dos ramas y no una: una dependencia git instala SIEMPRE la raíz del repo en
+# ese ref, así que un solo `dist` no puede servir a los dos paquetes.
+#
+# Consumo, sin registry, sin tokens y sin compilar en la instalación:
+#
+#   "sri-ec":        "github:fabricioNavarrete95/teran-sri-ec-node#dist"
+#   "sri-ec-nestjs": "github:fabricioNavarrete95/teran-sri-ec-node#dist-nestjs"
+#
+# No se crean tags: `#dist` se mueve con cada push a main y el
+# `package-lock.json` del consumidor fija el commit resuelto. Para fijar a mano,
+# se usa el SHA del head de la rama. Ver docs/consumir-desde-github.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/sri-ec/**'
+      - 'packages/nestjs-sri-ec/**'
+      - 'scripts/build-dist-packages.mjs'
+      - '.github/workflows/dist-branches.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dist-branches
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    name: Ensamblar y publicar ramas dist
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # `build` antes que nada: el script empaqueta lo que haya en cada dist/.
+      - run: npm run build
+
+      - name: Ensamblar paquetes
+        run: node scripts/build-dist-packages.mjs "$RUNNER_TEMP/dist-packages"
+
+      - name: Publicar ramas
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          REPO_DIR="$RUNNER_TEMP/repo-dist"
+          git init -q "$REPO_DIR"
+          cd "$REPO_DIR"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          for rama in dist dist-nestjs; do
+            origen="$RUNNER_TEMP/dist-packages/$rama"
+            version=$(node -p "require('${origen}/package.json').version")
+
+            # Rama huérfana: el contenido de la rama ES el paquete.
+            git checkout --orphan "$rama" -q
+            find . -maxdepth 1 -mindepth 1 ! -name .git -exec rm -rf {} +
+            cp -R "$origen/." .
+            git add -A
+            git commit -q -m "chore(dist): $rama v$version"
+            git push --force origin "$rama"
+            echo "rama $rama publicada (v$version)"
+          done
