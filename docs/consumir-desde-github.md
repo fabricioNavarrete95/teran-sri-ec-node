@@ -174,7 +174,9 @@ node -e "console.log(typeof require('sri-ec').SriClient, typeof require('sri-ec/
 npm ls sri-ec
 ```
 
-**2) En GitHub** (después del primer push a `main`):
+**2) En GitHub.** Un pull request hacia `main` ya dispara el workflow en modo
+verificación (sin publicar), así que se puede validar antes de mergear. Después
+del merge a `main`:
 
 ```bash
 git ls-remote https://github.com/fabricioNavarrete95/teran-sri-ec-node.git refs/heads/dist refs/heads/dist-nestjs
@@ -187,8 +189,11 @@ git ls-remote https://github.com/fabricioNavarrete95/teran-sri-ec-node.git refs/
 
 ## Cómo se genera (mantenimiento)
 
-- `.github/workflows/dist-branches.yml`: en cada push a `main` que toque los
-  paquetes (o a mano con *workflow_dispatch*), compila y publica ambas ramas.
+- `.github/workflows/dist-branches.yml`: compila y publica ambas ramas en cada
+  push a `main` que toque los paquetes, o a mano con *workflow_dispatch*.
+  En **pull requests hacia `main`** el workflow corre igual pero **solo verifica**
+  (ensambla el paquete y lo instala como dependencia git en un proyecto
+  desechable): una rama sin mergear nunca reescribe `dist`/`dist-nestjs`.
 - `scripts/build-dist-packages.mjs`: ensambla cada paquete — copia `dist/`,
   `README.md` y `LICENSE.md`, y sanea el `package.json` quitando `scripts`,
   `devDependencies` y `publishConfig` (quien instala desde git no compila ni
