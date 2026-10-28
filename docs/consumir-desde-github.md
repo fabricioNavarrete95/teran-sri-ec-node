@@ -133,6 +133,11 @@ CMD ["node", "dist/main.js"]
   o un deploy key con `--mount=type=ssh`.
 - `ignore-scripts=true` no molesta: estas ramas no tienen `prepare` ni install
   scripts.
+- npm registra el `resolved` como `git+ssh://git@github.com/…` en el lockfile
+  aunque declares `github:` o `git+https://…`: la descarga va por https y **no
+  requiere llaves SSH** (verificado en un contenedor sin `~/.ssh`). Si algún
+  runner forzara ssh, el parche conocido es
+  `git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"`.
 - El techo de caché de npm es local al runner; el clon del repo se repite por
   build (son ~560 KB).
 
