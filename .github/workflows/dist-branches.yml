@@ -1,0 +1,219 @@
+name: dist-branches
+
+# Genera, en este mismo repo, una rama huérfana por paquete con el paquete
+# compilado en su RAÍZ:
+#
+#   dist         → paquete `sri-ec` (core + subpath `sri-ec/ride`)
+#   dist-nestjs  → paquete `sri-ec-nestjs`
+#
+# Dos ramas y no una: una dependencia git instala SIEMPRE la raíz del repo en
+# ese ref, así que un solo `dist` no puede servir a los dos paquetes.
+#
+# Cuándo corre:
+#   - pull_request hacia main → solo VERIFICA (ensambla e instala los paquetes
+#     en un proyecto desechable); nunca publica. Un PR sin mergear jamás debe
+#     reescribir las ramas de distribución.
+#   - push a main → verifica y PUBLICA las dos ramas.
+#   - workflow_dispatch → lo mismo que un push a main.
+#
+# Consumo, sin registry, sin tokens y sin compilar en la instalación:
+#
+#   "sri-ec":        "github:fabricioNavarrete95/teran-sri-ec-node#dist"
+#   "sri-ec-nestjs": "github:fabricioNavarrete95/teran-sri-ec-node#dist-nestjs"
+#
+# No se crean tags: `#dist` se mueve con cada push a main y el
+# `package-lock.json` del consumidor fija el commit resuelto. Para fijar a mano,
+# se usa el SHA del head de la rama. Ver docs/consumir-desde-github.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/sri-ec/**'
+      - 'packages/nestjs-sri-ec/**'
+      - 'scripts/build-dist-packages.mjs'
+      - '.github/workflows/dist-branches.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/sri-ec/**'
+      - 'packages/nestjs-sri-ec/**'
+      - 'scripts/build-dist-packages.mjs'
+      - '.github/workflows/dist-branches.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dist-branches-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verificar:
+    name: Ensamblar y verificar paquetes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # `build` antes que nada: el script empaqueta lo que haya en cada dist/.
+      - run: npm run build
+
+      - name: Ensamblar paquetes
+        run: node scripts/build-dist-packages.mjs "$RUNNER_TEMP/dist-packages"
+
+      - name: Verificar el contenido ensamblado
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const base = process.env.RUNNER_TEMP + "/dist-packages";
+            const esperado = [
+              { dir: "dist", nombre: "sri-ec", subpath: "./ride" },
+              { dir: "dist-nestjs", nombre: "sri-ec-nestjs", subpath: undefined },
+            ];
+            const fallos = [];
+            for (const { dir, nombre, subpath } of esperado) {
+              const raiz = path.join(base, dir);
+              const pkg = JSON.parse(fs.readFileSync(path.join(raiz, "package.json"), "utf8"));
+              if (pkg.name !== nombre) fallos.push(`${dir}: name=${pkg.name} (se esperaba ${nombre})`);
+              for (const campo of ["scripts", "devDependencies", "publishConfig"]) {
+                if (pkg[campo] !== undefined) fallos.push(`${dir}: no debe llevar ${campo}`);
+              }
+              if (JSON.stringify(pkg.files) !== JSON.stringify(["dist", "README.md", "LICENSE.md"])) {
+                fallos.push(`${dir}: files=${JSON.stringify(pkg.files)}`);
+              }
+              if (!pkg.exports || !pkg.exports["."]) fallos.push(`${dir}: falta exports["."]`);
+              if (subpath && !pkg.exports[subpath]) fallos.push(`${dir}: falta exports["${subpath}"]`);
+              for (const [archivo, requerido] of [
+                ["dist/index.js", true],
+                ["dist/index.cjs", true],
+                ["dist/index.d.ts", true],
+                ["dist/ride/index.js", Boolean(subpath)],
+                ["README.md", true],
+                ["LICENSE.md", true],
+              ]) {
+                if (requerido && !fs.existsSync(path.join(raiz, archivo))) fallos.push(`${dir}: falta ${archivo}`);
+              }
+            }
+            if (fallos.length) {
+              console.error("Paquetes ensamblados inválidos:");
+              for (const f of fallos) console.error(" - " + f);
+              process.exit(1);
+            }
+            console.log("Paquetes ensamblados OK");
+          '
+
+      - name: Probar instalación como dependencia git
+        run: |
+          set -euo pipefail
+          base="$RUNNER_TEMP/dist-packages"
+
+          # Cada paquete, como repo git con el paquete en la raíz (igual que la rama).
+          for paquete in dist dist-nestjs; do
+            (
+              cd "$base/$paquete"
+              git init -q .
+              git add -A
+              git -c user.email=ci@local -c user.name=ci commit -qm "dist $paquete"
+            )
+          done
+
+          mkdir -p "$RUNNER_TEMP/consumidor"
+          cd "$RUNNER_TEMP/consumidor"
+          printf '%s' '{"name":"consumidor-ci","private":true,"type":"module"}' > package.json
+          npm install --no-audit --no-fund \
+            "git+file://$base/dist" \
+            "git+file://$base/dist-nestjs" \
+            @nestjs/common pdfkit
+
+          node -e '
+            const core = require("sri-ec");
+            const ride = require("sri-ec/ride");
+            const nest = require("sri-ec-nestjs");
+            const faltan = [
+              ["SriClient", typeof core.SriClient, "function"],
+              ["SriError", typeof core.SriError, "function"],
+              ["generarClaveAcceso", typeof core.generarClaveAcceso, "function"],
+              ["generarRide", typeof ride.generarRide, "function"],
+              ["generarRideRetencion", typeof ride.generarRideRetencion, "function"],
+              ["SriModule", typeof nest.SriModule, "function"],
+            ].filter(([, real, esperado]) => real !== esperado);
+            if (faltan.length) {
+              console.error("Exports faltantes: " + faltan.map(([n]) => n).join(", "));
+              process.exit(1);
+            }
+            const clave = core.generarClaveAcceso({
+              fecha: "14/03/2026", tipoComprobante: "01", ruc: "1790011001001",
+              ambiente: "1", serie: "001001", numero: "000000001", codigoNum: "12345678",
+            });
+            if (!/^\d{49}$/.test(clave)) {
+              console.error("Clave de acceso inválida: " + clave);
+              process.exit(1);
+            }
+            console.log("Instalación como dependencia git OK");
+          '
+
+          # El peer de sri-ec-nestjs NO debe resolverse contra npmjs.
+          if npm ls sri-ec --json 2>/dev/null | grep -q "registry.npmjs.org"; then
+            echo "El peer de sri-ec-nestjs se resolvió contra npmjs en vez del paquete local"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-packages
+          path: ${{ runner.temp }}/dist-packages
+          retention-days: 7
+
+  publicar:
+    name: Publicar ramas dist
+    needs: verificar
+    # Un PR nunca publica: solo un push a main o un disparo manual.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-packages
+          path: ${{ runner.temp }}/dist-packages
+
+      - name: Publicar ramas
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          REPO_DIR="$RUNNER_TEMP/repo-dist"
+          git init -q "$REPO_DIR"
+          cd "$REPO_DIR"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          for rama in dist dist-nestjs; do
+            origen="$RUNNER_TEMP/dist-packages/$rama"
+            version=$(node -p "require('${origen}/package.json').version")
+
+            # Rama huérfana: el contenido de la rama ES el paquete.
+            git checkout --orphan "$rama" -q
+            find . -maxdepth 1 -mindepth 1 ! -name .git -exec rm -rf {} +
+            cp -R "$origen/." .
+            git add -A
+            git commit -q -m "chore(dist): $rama v$version"
+            git push --force origin "$rama"
+            echo "rama $rama publicada (v$version)"
+          done
