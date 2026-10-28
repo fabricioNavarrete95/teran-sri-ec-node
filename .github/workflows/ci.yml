@@ -1,11 +1,15 @@
 name: CI
 
+# Corre en pull requests hacia main y en el push a main que resulta del merge.
+# Antes corría en `branches: ['**']`, lo que duplicaba ejecuciones por cada push
+# a una rama con PR abierto (una por push y otra por pull_request).
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
+    branches: [main]
 
-# Una sola ejecución por rama: un push nuevo cancela la anterior.
+# Una ejecución por ref: un push nuevo cancela la anterior.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
