@@ -1,6 +1,6 @@
 # sri-ec-nestjs
 
-[![npm version](https://img.shields.io/npm/v/sri-ec-nestjs.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec-nestjs) [![Licencia MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/JonathanTeran/teran-sri-ec-node/blob/main/LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2020-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/sri-ec-nestjs.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec-nestjs) [![Licencia MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/JonathanTeran/teran-sri-ec-node/blob/main/LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2024-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 Módulo de inyección de dependencias para **NestJS** sobre [`sri-ec`](https://www.npmjs.com/package/sri-ec), la librería de **Facturación Electrónica del SRI Ecuador**. Wiring puro (`SriModule.forRoot()` / `forRootAsync()` + `SriService`), sin lógica de negocio propia: cada método de `SriService` delega íntegramente en el núcleo.
 

@@ -1,6 +1,6 @@
 # sri-ec
 
-[![npm version](https://img.shields.io/npm/v/sri-ec.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec) [![Licencia MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/JonathanTeran/teran-sri-ec-node/blob/main/LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2020-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/sri-ec.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec) [![Licencia MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/JonathanTeran/teran-sri-ec-node/blob/main/LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2024-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 Librería de **Facturación Electrónica del SRI Ecuador** para Node.js/TypeScript: documentos tipados, validación (zod + `BusinessValidator`), serialización XML, carga de certificados `.p12`, firma **XAdES-BES**, transporte SOAP sobre `fetch` nativo y envío masivo (`BatchEmitter`). Agnóstico de framework y sin dependencias nativas (nada de `node-gyp`).
 

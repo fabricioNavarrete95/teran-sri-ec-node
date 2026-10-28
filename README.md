@@ -1,6 +1,6 @@
 # 🇪🇨 sri-ec (Node.js / TypeScript)
 
-[![npm version](https://img.shields.io/npm/v/sri-ec.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec) [![Licencia de Software](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2020-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/) [![Invítame un café](https://img.shields.io/badge/PayPal-Inv%C3%ADtame%20un%20caf%C3%A9-00457C?style=flat-square&logo=paypal&logoColor=white)](https://paypal.me/teranjona)
+[![npm version](https://img.shields.io/npm/v/sri-ec.svg?style=flat-square)](https://www.npmjs.com/package/sri-ec) [![Licencia de Software](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md) [![Node.js](https://img.shields.io/badge/node-%3E%3D%2024-339933.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/) [![Invítame un café](https://img.shields.io/badge/PayPal-Inv%C3%ADtame%20un%20caf%C3%A9-00457C?style=flat-square&logo=paypal&logoColor=white)](https://paypal.me/teranjona)
 
 Librería profesional para **Facturación Electrónica del SRI Ecuador** en Node.js/TypeScript. Es el port oficial de [`amephia/sri-ec`](https://packagist.org/packages/amephia/sri-ec) (PHP) — misma API 2.0 tipada, misma firma XAdES-BES **verificada byte a byte** contra el paquete original, cero dependencias nativas.
 
