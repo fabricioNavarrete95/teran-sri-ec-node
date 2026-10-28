@@ -110,7 +110,7 @@ import { SriModule } from 'sri-ec-nestjs';
 export class AppModule {}
 ```
 
-Requisitos: **Node.js >= 20**. `pdfkit` solo si generas RIDE; `qrcode` solo si
+Requisitos: **Node.js >= 24**. `pdfkit` solo si generas RIDE; `qrcode` solo si
 activas `opciones.incluirQr`.
 
 ## Docker / Coolify
@@ -119,7 +119,7 @@ Una dependencia git hace que npm clone el repo durante la instalación, así que
 imagen necesita `git`:
 
 ```dockerfile
-FROM node:22-alpine
+FROM node:24-alpine
 RUN apk add --no-cache git          # imprescindible: npm clona el repo
 WORKDIR /app
 COPY package*.json ./

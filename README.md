@@ -103,7 +103,7 @@ npm install sri-ec-nestjs
 
 ## 🛠 Requisitos
 
-- **Node.js**: `>= 20`
+- **Node.js**: `>= 24`
 - **Cero dependencias nativas**: `node-forge`, `@xmldom/xmldom`, `fast-xml-parser` y `zod` son JS puro — no hace falta `node-gyp` ni un toolchain de compilación.
 - Empaquetado dual ESM/CJS (`import`/`require` funcionan igual) con declaraciones de tipos incluidas.
 

@@ -57,7 +57,7 @@
   ],
   "sideEffects": false,
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "license": "MIT",
   "author": "Jonathan Terán",
