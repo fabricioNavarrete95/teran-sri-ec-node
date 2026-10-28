@@ -14,5 +14,8 @@
     "verify:isolation": "bash scripts/verify-optional-isolation.sh"
   },
   "license": "MIT",
-  "author": "Jonathan Terán"
+  "author": "Jonathan Terán",
+  "engines": {
+    "node": ">=24"
+  }
 }

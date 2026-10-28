@@ -24,7 +24,7 @@ Es el port oficial de [`amephia/sri-ec`](https://packagist.org/packages/amephia/
 npm install sri-ec
 ```
 
-Requiere **Node.js >= 20**.
+Requiere **Node.js >= 24**.
 
 ## Uso
 
